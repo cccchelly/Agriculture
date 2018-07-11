@@ -251,7 +251,7 @@ public class MqttService extends Service {
         CaptureTaskUtil captureTaskUtil = CaptureTaskUtil.instance();
         switch (cmd) {
             case "task_rest"://重启定时任务
-                TaskServiceUtil.resetTasks();
+                TaskServiceUtil.resetPhotoTasks();
                 break;
             case "app_reset"://重启app
                 AppUpdateUtil.restartApp();
