@@ -196,6 +196,10 @@ public class ControlFragment extends BaseFragment<ControlPresenter, IControlView
                 decline();
                 break;
             case R.id.tv_take_photo:
+               /*  //临时跳过检测直接拍照，测试用
+               captureTaskUtil.loginCapture();  //登录摄像机
+                captureTaskUtil.capture(CaptureTaskUtil.FROM_Hand); //执行拍照任务*/
+               //正常操作
                 takePhoto();
                 break;
             case R.id.ic_reset:

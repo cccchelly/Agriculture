@@ -231,7 +231,7 @@ public abstract class BaseActivity<T extends BasePresenter<V>,V extends BaseMvpV
     public boolean dispatchTouchEvent(MotionEvent ev) { //屏幕被点击刷新最后点击时间并点亮屏幕
         PostMsgService.lastClickTime = System.currentTimeMillis();
         ActivityBrightnessManager.setScreenBrightness(255);
-        Log.i("==screen_touch==","==screen_touch==");
+        //Log.i("==screen_touch==","==screen_touch==");
         return super.dispatchTouchEvent(ev);
     }
 

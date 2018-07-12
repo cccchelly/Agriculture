@@ -191,10 +191,7 @@ public class MqttService extends Service {
             String str2 = topic + ";qos:" + message.getQos() + ";retained:" + message.isRetained();
             Log.i(TAG, "id:"+message.getId()+",messageArrived:" + str1);
             Log.i(TAG, str2);
-            if (ShareUtil.getMqttMsgId() != message.getId()) { //本次消息id与最后一次不一样再处理
-                dealMsg(str1);
-            }
-            ShareUtil.setMqttMsgId(message.getId());  //保存最后一次处理的消息id
+            dealMsg(str1);
         }
 
         @Override
