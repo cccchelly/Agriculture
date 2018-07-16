@@ -34,19 +34,12 @@ public class SplashActivity extends BaseActivity<SplashPresenter,ISplashView> im
 
     @Override
     protected void init(@Nullable Bundle savedInstanceState) {
-        restLocalMsg();
+
     }
 
     @Override
     protected void getBundleExtras(Bundle bundle) {
 
-    }
-
-    public void restLocalMsg() {
-        ShareUtil.saveCaptureCamSta("0");
-        ShareUtil.saveCaptureErrorSta("0");
-        ShareUtil.saveDeviceStatue("0");
-        ShareUtil.saveDeviceError("0");
     }
 
     @Override

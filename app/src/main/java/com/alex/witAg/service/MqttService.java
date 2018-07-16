@@ -64,7 +64,8 @@ public class MqttService extends Service {
 
     //mosquitto_sub -t HelloWord -h 59.110.240.44
 
-    private String host = "tcp://59.110.240.44:1883";
+   // private String host = "tcp://59.110.240.44:1883";
+    private String host = AppContants.MQTT_BASE_URL;
     private String userName = "admin";
     private String passWord = "password";
     private static String myTopic = "Device/DFS/cid" + AppMsgUtil.getIMEI(App.getAppContext());

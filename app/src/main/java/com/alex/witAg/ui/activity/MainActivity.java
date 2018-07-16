@@ -9,10 +9,17 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.alex.witAg.App;
 import com.alex.witAg.AppContants;
 import com.alex.witAg.R;
 import com.alex.witAg.base.BaseActivity;
+import com.alex.witAg.base.BaseObserver;
+import com.alex.witAg.base.BaseResponse;
 import com.alex.witAg.bean.HomeBean;
+import com.alex.witAg.bean.PostMsgBean;
+import com.alex.witAg.bean.PostMsgResultBean;
+import com.alex.witAg.http.AppDataManager;
+import com.alex.witAg.http.network.Net;
 import com.alex.witAg.presenter.MainPresenter;
 import com.alex.witAg.presenter.viewImpl.IMainView;
 import com.alex.witAg.ui.fragment.AboutFragment;
@@ -21,6 +28,7 @@ import com.alex.witAg.ui.fragment.DataFragment;
 import com.alex.witAg.ui.fragment.HomeFragment;
 import com.alex.witAg.ui.fragment.SettingFragment;
 import com.alex.witAg.utils.ActivityBrightnessManager;
+import com.alex.witAg.utils.AppMsgUtil;
 import com.alex.witAg.utils.ShareUtil;
 import com.alex.witAg.utils.TaskServiceUtil;
 import com.alex.witAg.view.LeftTabView;
@@ -31,6 +39,8 @@ import org.litepal.tablemanager.Connector;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 @Route(path = AppContants.ARouterUrl.MAIN_ACTIVITY/*, extras = AppContants.LOGIN_INTERCEPTOR*/)
 public class MainActivity extends BaseActivity<MainPresenter, IMainView> implements IMainView {
@@ -69,8 +79,43 @@ public class MainActivity extends BaseActivity<MainPresenter, IMainView> impleme
     @Override
     protected void init(@Nullable Bundle savedInstanceState) {
         initFragment(savedInstanceState);
+        //每次重启上传信息，然后再重置本地状态
+        postMsg();
+        restLocalMsg();
         TaskServiceUtil.resetTasks();
     }
+
+    private void postMsg() {
+        PostMsgBean postMsgBean = new PostMsgBean();
+        postMsgBean.setSunvol(ShareUtil.getDeviceSunvol());
+        postMsgBean.setBatvol(ShareUtil.getDeviceBatvol());
+        postMsgBean.setHighsta(ShareUtil.getCaptureHignSta());
+        postMsgBean.setSta(ShareUtil.getDeviceStatue());
+        postMsgBean.setError(ShareUtil.getDeviceError());
+        postMsgBean.setImei(AppMsgUtil.getIMEI(App.getAppContext()));
+        postMsgBean.setLatitude(ShareUtil.getLatitude()+"");
+        postMsgBean.setLongitude(ShareUtil.getLongitude()+"");
+        postMsgBean.setFirstStart(true);
+
+        AppDataManager.getInstence(Net.URL_KIND_BASE)
+                .postDeviceMsg(postMsgBean)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<BaseResponse<PostMsgResultBean>>() {
+                    @Override
+                    public void onSuccess(BaseResponse<PostMsgResultBean> response) {
+
+                    }
+                });
+    }
+
+    public void restLocalMsg() {
+        ShareUtil.saveCaptureCamSta("0");
+        ShareUtil.saveCaptureErrorSta("0");
+        ShareUtil.saveDeviceStatue("0");
+        ShareUtil.saveDeviceError("0");
+    }
+
 
     private void initListener() {
         mLeftTabView.setOnSelectedChangeListener((view, position) -> {

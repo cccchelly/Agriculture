@@ -54,6 +54,7 @@ public class TaskServiceUtil {
         Intent postMsgIntent = new Intent(App.getAppContext(), PostMsgService.class);
         App.getAppContext().stopService(postMsgIntent);
     }
+
     public static void stopPhotoTasks(){
         Intent intent = new Intent(App.getAppContext(), CaptureService.class);   //关闭服务定时拍照
         App.getAppContext().stopService(intent);

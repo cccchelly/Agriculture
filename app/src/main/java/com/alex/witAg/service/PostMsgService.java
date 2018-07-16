@@ -59,6 +59,7 @@ public class PostMsgService extends Service {
             postMsgBean.setImei(AppMsgUtil.getIMEI(App.getAppContext()));
             postMsgBean.setLatitude(ShareUtil.getLatitude()+"");
             postMsgBean.setLongitude(ShareUtil.getLongitude()+"");
+            postMsgBean.setFirstStart(false);
 
             AppDataManager.getInstence(Net.URL_KIND_BASE)
                     .postDeviceMsg(postMsgBean)

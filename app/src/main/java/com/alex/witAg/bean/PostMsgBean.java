@@ -27,6 +27,24 @@ public class PostMsgBean {
     private String sunvol;
     private String latitude;
     private String longitude;
+    private boolean isFirstStart;
+    private String errorInfo;
+
+    public String getErrorInfo() {
+        return errorInfo;
+    }
+
+    public void setErrorInfo(String errorInfo) {
+        this.errorInfo = errorInfo;
+    }
+
+    public boolean isFirstStart() {
+        return isFirstStart;
+    }
+
+    public void setFirstStart(boolean firstStart) {
+        isFirstStart = firstStart;
+    }
 
     public String getLatitude() {
         return latitude;

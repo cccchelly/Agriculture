@@ -21,7 +21,16 @@ import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.alex.witAg.App;
+import com.alex.witAg.base.BaseObserver;
+import com.alex.witAg.base.BaseResponse;
+import com.alex.witAg.bean.PostMsgBean;
+import com.alex.witAg.bean.PostMsgResultBean;
+import com.alex.witAg.http.AppDataManager;
+import com.alex.witAg.http.network.Net;
 import com.alex.witAg.ui.activity.SplashActivity;
+import com.alex.witAg.utils.AppMsgUtil;
+import com.alex.witAg.utils.ShareUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,6 +43,9 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Class: CrashUtil
@@ -85,6 +97,7 @@ public class CrashUtil implements Thread.UncaughtExceptionHandler {
     @Override
     public void uncaughtException (Thread thread, Throwable ex)
     {
+        postError(ex);
         handleException(ex);
         restartApp(thread,ex);   //crash重启
         if (mDefaultCrashHandler != null)
@@ -92,6 +105,60 @@ public class CrashUtil implements Thread.UncaughtExceptionHandler {
             SystemClock.sleep(500);
             mDefaultCrashHandler.uncaughtException(thread, ex);
         }
+    }
+
+    private void postError(Throwable ex) {
+
+        StringBuffer sb = new StringBuffer();
+        for (Map.Entry<String, String> entry : infos.entrySet())
+        {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            sb.append(key);
+            sb.append(" : ");
+            sb.append(value);
+            sb.append("\n");
+        }
+
+        Writer writer = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(writer);
+        ex.printStackTrace(printWriter);
+        Throwable cause = ex.getCause();
+        while (cause != null)
+        {
+            cause.printStackTrace(printWriter);
+            cause = cause.getCause();
+        }
+        printWriter.close();
+
+        String result = writer.toString();
+        sb.append("\n");
+        sb.append(result);
+
+        Log.i("==errorstr==",sb.toString());
+
+        PostMsgBean postMsgBean = new PostMsgBean();
+        postMsgBean.setSunvol(ShareUtil.getDeviceSunvol());
+        postMsgBean.setBatvol(ShareUtil.getDeviceBatvol());
+        postMsgBean.setHighsta(ShareUtil.getCaptureHignSta());
+        postMsgBean.setSta(ShareUtil.getDeviceStatue());
+        postMsgBean.setError(ShareUtil.getDeviceError());
+        postMsgBean.setImei(AppMsgUtil.getIMEI(App.getAppContext()));
+        postMsgBean.setLatitude(ShareUtil.getLatitude()+"");
+        postMsgBean.setLongitude(ShareUtil.getLongitude()+"");
+        postMsgBean.setFirstStart(false);
+        postMsgBean.setErrorInfo(sb.toString());
+
+        AppDataManager.getInstence(Net.URL_KIND_BASE)
+                .postDeviceMsg(postMsgBean)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new BaseObserver<BaseResponse<PostMsgResultBean>>() {
+                    @Override
+                    public void onSuccess(BaseResponse<PostMsgResultBean> response) {
+
+                    }
+                });
     }
 
     private boolean handleException (Throwable ex)
